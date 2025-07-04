@@ -138,31 +138,4 @@ helpdesk-pro/
 4. Push to the branch
 5. Open a pull request
 
-## Support
 
-For support, please contact:
-- Email: support@helpdeskpro.com
-- Documentation: [docs-url]
-- Issues: GitHub Issues
-
-## Roadmap
-
-### Upcoming Features
-- Real-time chat support
-- AI-powered ticket routing
-- Advanced analytics dashboard
-- Mobile application
-- Integration with popular CRM systems
-- Automated ticket categorization
-- Knowledge base management
-- Custom workflow builder
-
-### Future Improvements
-- Enhanced reporting capabilities
-- Multi-language support
-- Dark mode theme
-- API documentation
-- Performance monitoring tools
-- Advanced search capabilities
-- Custom dashboard widgets
-- Automated testing suite
