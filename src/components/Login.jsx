@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import API_URLS from '../config/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,12 +20,13 @@ const Login = () => {
     try {
       console.log('Attempting login with:', { email: formData.email, role: formData.role });
       
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(API_URLS.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 

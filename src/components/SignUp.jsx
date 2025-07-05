@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import API_URLS from '../config/api';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -8,31 +9,41 @@ const SignUp = () => {
     password: '',
     role: 'user'
   });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await fetch(API_URLS.register, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        mode: 'cors',
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(data.message || 'Registration failed');
       }
 
-      const data = await response.json();
-      alert('Registration successful! Please login.');
-      navigate('/login');
+      // Show success message
+      setError('Registration successful! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (error) {
       console.error('Registration error:', error);
-      alert(error.message || 'An error occurred during registration');
+      setError(error.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,6 +59,20 @@ const SignUp = () => {
       <div className="auth-box">
         <h2>Helpdesk System</h2>
         <p>Sign up here</p>
+        {error && (
+          <div 
+            className="message" 
+            style={{ 
+              color: error.includes('successful') ? 'green' : 'red',
+              marginBottom: '10px',
+              padding: '10px',
+              backgroundColor: error.includes('successful') ? '#e6ffe6' : '#ffe6e6',
+              borderRadius: '4px'
+            }}
+          >
+            {error}
+          </div>
+        )}
         <form className="auth-form" onSubmit={handleSubmit}>
           <input 
             type="email" 
@@ -79,8 +104,12 @@ const SignUp = () => {
             <option value="operation">Operation</option>
             <option value="admin">Admin</option>
           </select>
-          <button type="submit" className="auth-button signup-button">
-            Sign Up
+          <button 
+            type="submit" 
+            className="auth-button signup-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing Up...' : 'Sign Up'}
           </button>
           <div className="auth-links">
             <Link to="/forgot-password" className="forgot-link">Forgot password</Link>
