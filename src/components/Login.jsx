@@ -19,6 +19,7 @@ const Login = () => {
     
     try {
       console.log('Attempting login with:', { email: formData.email, role: formData.role });
+      console.log('Login URL:', API_URLS.login);
       
       const response = await fetch(API_URLS.login, {
         method: 'POST',
@@ -40,9 +41,10 @@ const Login = () => {
       if (data.token) {
         // Store the token and role in localStorage
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userRole', data.role); // Changed from 'role' to 'userRole'
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('userEmail', data.email);
         
-        // Navigate based on role to the correct dashboard paths
+        // Navigate based on role
         switch(data.role) {
           case 'admin':
             navigate('/dashboard/admin');
@@ -79,7 +81,14 @@ const Login = () => {
       <div className="auth-box">
         <h2>Helpdesk System</h2>
         {error && (
-          <div className="error-message" style={{ color: 'red', marginBottom: '10px', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '4px' }}>
+          <div className="error-message" style={{ 
+            color: 'red', 
+            marginBottom: '10px', 
+            padding: '10px', 
+            backgroundColor: '#ffe6e6', 
+            borderRadius: '4px',
+            wordBreak: 'break-word'
+          }}>
             {error}
           </div>
         )}
