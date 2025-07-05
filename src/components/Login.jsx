@@ -4,15 +4,65 @@ import { useState } from 'react';
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
-    password: ''
+    email: '',
+    password: '',
+    role: 'user' // default role
   });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you would validate credentials here
-    // For now, we'll just redirect to the role selection page
-    navigate('/role-selection');
+    setError('');
+    setIsLoading(true);
+    
+    try {
+      console.log('Attempting login with:', { email: formData.email, role: formData.role });
+      
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+      console.log('Login response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      if (data.token) {
+        // Store the token and role in localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.role); // Changed from 'role' to 'userRole'
+        
+        // Navigate based on role to the correct dashboard paths
+        switch(data.role) {
+          case 'admin':
+            navigate('/dashboard/admin');
+            break;
+          case 'technical':
+            navigate('/dashboard/technical');
+            break;
+          case 'operation':
+            navigate('/dashboard/operation');
+            break;
+          default:
+            navigate('/dashboard/user');
+        }
+      } else {
+        throw new Error('No token received from server');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message || 'Failed to login. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -26,14 +76,20 @@ const Login = () => {
     <div className="auth-background">
       <div className="auth-box">
         <h2>Helpdesk System</h2>
+        {error && (
+          <div className="error-message" style={{ color: 'red', marginBottom: '10px', padding: '10px', backgroundColor: '#ffe6e6', borderRadius: '4px' }}>
+            {error}
+          </div>
+        )}
         <form className="auth-form" onSubmit={handleSubmit}>
           <input 
-            type="text" 
-            placeholder="Username" 
+            type="email" 
+            placeholder="Email" 
             className="auth-input"
-            name="username"
-            value={formData.username}
+            name="email"
+            value={formData.email}
             onChange={handleChange}
+            required
           />
           <input 
             type="password" 
@@ -42,9 +98,26 @@ const Login = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
+            required
           />
-          <button type="submit" className="auth-button login-button">
-            Sign In
+          <select
+            name="role"
+            className="auth-input"
+            value={formData.role}
+            onChange={handleChange}
+            required
+          >
+            <option value="user">User</option>
+            <option value="technical">Technical</option>
+            <option value="operation">Operation</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button 
+            type="submit" 
+            className="auth-button login-button"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
           <div className="auth-links">
             <Link to="/forgot-password" className="forgot-link">Forgot password</Link>
